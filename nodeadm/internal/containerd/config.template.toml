@@ -14,7 +14,7 @@ sandbox_image = "{{.SandboxImage}}"
 enable_cdi = {{.EnableCDI}}
 
 [plugins."io.containerd.grpc.v1.cri".registry]
-config_path = "/etc/containerd/certs.d:/etc/docker/certs.d"
+config_path = "/etc/containerd/certs.d"
 
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.{{.RuntimeName}}]
 runtime_type = "io.containerd.runc.v2"

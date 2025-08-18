@@ -37,6 +37,19 @@ _Appears in:_
 | `config` _string_ | Config is an inline [`containerd` configuration TOML](https://github.com/containerd/containerd/blob/main/docs/man/containerd-config.toml.5.md)<br />that will be merged with the defaults. |
 | `baseRuntimeSpec` _object (keys:string, values:[RawExtension](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#rawextension-runtime-pkg))_ | BaseRuntimeSpec is the OCI runtime specification upon which all containers will be based.<br />The provided spec will be merged with the default spec; so that a partial spec may be provided.<br />For more information, see: https://github.com/opencontainers/runtime-spec |
 
+#### CredentialProvider
+
+CredentialProvider specifies the credential provider binary to invoke for image names that match a pattern.
+
+_Appears in:_
+- [KubeletOptions](#kubeletoptions)
+
+| Field | Description |
+| --- | --- |
+| `name` _string_ | The name of the binary to invoke. The binary should be located in /etc/eks/image-credential-provider. |
+| `matchImages` _string array_ | A list of image patterns to match. See [`CredentialProvider`](https://kubernetes.io/docs/reference/config-api/kubelet-config.v1/#kubelet-config-k8s-io-v1-CredentialProvider). |
+| `defaultCacheDuration` _string_ | The default duration the plugin will cache credentials in-memory if a cache duration is not provided in the plugin response. |
+
 #### DisabledMount
 
 _Underlying type:_ _string_
@@ -85,6 +98,7 @@ _Appears in:_
 | Field | Description |
 | --- | --- |
 | `config` _object (keys:string, values:[RawExtension](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#rawextension-runtime-pkg))_ | Config is a [`KubeletConfiguration`](https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/)<br />that will be merged with the defaults. |
+| `credentialProviders` _[CredentialProvider](#credentialprovider) array_ | A list of [`CredentialProvider`](https://kubernetes.io/docs/reference/config-api/kubelet-config.v1/#kubelet-config-k8s-io-v1-CredentialProvider)<br />to include with the default credential providers in the generated [`CredentialProviderConfig`](https://kubernetes.io/docs/reference/config-api/kubelet-config.v1/#kubelet-config-k8s-io-v1-CredentialProviderConfig). |
 | `flags` _string array_ | Flags are [command-line `kubelet` arguments](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/).<br />that will be appended to the defaults. |
 
 #### LocalStorageOptions

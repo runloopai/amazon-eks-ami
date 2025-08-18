@@ -65,9 +65,25 @@ type KubeletOptions struct {
 	// that will be merged with the defaults.
 	Config map[string]runtime.RawExtension `json:"config,omitempty"`
 
+	// A list of [`CredentialProvider`](https://kubernetes.io/docs/reference/config-api/kubelet-config.v1/#kubelet-config-k8s-io-v1-CredentialProvider)
+	// to include with the default credential providers in the generated [`CredentialProviderConfig`](https://kubernetes.io/docs/reference/config-api/kubelet-config.v1/#kubelet-config-k8s-io-v1-CredentialProviderConfig).
+	CredentialProviders []CredentialProvider `json:"credentialProviders,omitempty"`
+
 	// Flags are [command-line `kubelet` arguments](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/).
 	// that will be appended to the defaults.
 	Flags []string `json:"flags,omitempty"`
+}
+
+// CredentialProvider specifies the credential provider binary to invoke for image names that match a pattern.
+type CredentialProvider struct {
+	// The name of the binary to invoke. The binary should be located in /etc/eks/image-credential-provider.
+	Name string `json:"name,omitempty"`
+
+	// A list of image patterns to match. See [`CredentialProvider`](https://kubernetes.io/docs/reference/config-api/kubelet-config.v1/#kubelet-config-k8s-io-v1-CredentialProvider).
+	MatchImages []string `json:"matchImages,omitempty"`
+
+	// The default duration the plugin will cache credentials in-memory if a cache duration is not provided in the plugin response.
+	DefaultCacheDuration string `json:"defaultCacheDuration,omitempty"`
 }
 
 // ContainerdOptions are additional parameters passed to `containerd`.

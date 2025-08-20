@@ -69,10 +69,23 @@ type KubeletOptions struct {
 	// default generated configurations
 	// https://kubernetes.io/docs/reference/config-api/kubelet-config.v1/
 	Config InlineDocument `json:"config,omitempty"`
+	// A list of [`CredentialProvider`](https://kubernetes.io/docs/reference/config-api/kubelet-config.v1/#kubelet-config-k8s-io-v1-CredentialProvider)
+	// to include with the default credential providers in the generated [`CredentialProviderConfig`](https://kubernetes.io/docs/reference/config-api/kubelet-config.v1/#kubelet-config-k8s-io-v1-CredentialProviderConfig).
+	CredentialProviders []CredentialProvider `json:"credentialProviders,omitempty"`
 	// Flags is a list of command-line kubelet arguments. These arguments are
 	// amended to the generated defaults, and therefore will act as overrides
 	// https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/
 	Flags KubeletFlags `json:"flags,omitempty"`
+}
+
+// CredentialProvider specifies the credential provider binary to invoke for image names that match a pattern.
+type CredentialProvider struct {
+	// The name of the binary to invoke. The binary should be located in /etc/eks/image-credential-provider.
+	Name string `json:"name,omitempty"`
+	// A list of image patterns to match. See [`CredentialProvider`](https://kubernetes.io/docs/reference/config-api/kubelet-config.v1/#kubelet-config-k8s-io-v1-CredentialProvider).
+	MatchImages []string `json:"matchImages,omitempty"`
+	// The default duration the plugin will cache credentials in-memory if a cache duration is not provided in the plugin response.
+	DefaultCacheDuration string `json:"defaultCacheDuration,omitempty"`
 }
 
 // InlineDocument is an alias to a dynamically typed map. This allows using

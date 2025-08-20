@@ -55,9 +55,10 @@ func (k *kubelet) writeImageCredentialProviderConfig(cfg *api.NodeConfig) error 
 }
 
 type imageCredentialProviderTemplateVars struct {
-	ConfigApiVersion   string
-	ProviderApiVersion string
-	EcrProviderName    string
+	ConfigApiVersion    string
+	ProviderApiVersion  string
+	EcrProviderName     string
+	AdditionalProviders []api.CredentialProvider
 }
 
 func generateImageCredentialProviderConfig(cfg *api.NodeConfig, ecrCredentialProviderBinPath string) ([]byte, error) {
@@ -71,6 +72,8 @@ func generateImageCredentialProviderConfig(cfg *api.NodeConfig, ecrCredentialPro
 		templateVars.ConfigApiVersion = "kubelet.config.k8s.io/v1"
 		templateVars.ProviderApiVersion = "credentialprovider.kubelet.k8s.io/v1"
 	}
+	templateVars.AdditionalProviders = cfg.Spec.Kubelet.CredentialProviders
+
 	var buf bytes.Buffer
 	if err := imageCredentialProviderTemplate.Execute(&buf, templateVars); err != nil {
 		return nil, err

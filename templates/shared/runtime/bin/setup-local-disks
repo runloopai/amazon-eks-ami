@@ -42,6 +42,7 @@ maybe_raid() {
   local md_device="/dev/md/${md_name}"
   local md_config="/.aws/mdadm.conf"
   local array_mount_point="${MNT_DIR}/0"
+  local created_array=false
   mkdir -p "$(dirname "${md_config}")"
 
   if [[ ! -s "${md_config}" ]]; then
@@ -52,6 +53,7 @@ maybe_raid() {
       --raid-devices="${#EPHEMERAL_DISKS[@]}" \
       "${EPHEMERAL_DISKS[@]}"
     mdadm --detail --scan > "${md_config}"
+    created_array=true
   fi
 
   ## Check if the device symlink has changed on reboot to include a homehost identifier
@@ -60,20 +62,23 @@ maybe_raid() {
     md_device="${current_md_device}"
   fi
 
-  # Format the array if not already formatted.
-  if [[ -z "$(lsblk "${md_device}" -o fstype --noheadings)" ]]; then
+  # Format the array if not already formatted. An array created above is always formatted:
+  # unwritten instance store reads back as random bytes, so the probe below occasionally
+  # matches a filesystem magic and reports a filesystem that was never created.
+  if [[ "${created_array}" == "true" ]] || [[ -z "$(lsblk "${md_device}" -o fstype --noheadings)" ]]; then
     ## By default, mkfs tries to use the stripe unit of the array (512k),
     ## for the log stripe unit, but the max log stripe unit is 256k.
     ## So instead, we use 32k (8 blocks) to avoid a warning of breaching the max.
     ## mkfs.xfs defaults to 32k after logging the warning since the default log buffer size is 32k.
     ## Instances are delivered with disks fully trimmed, so TRIM is skipped at creation time.
-    mkfs.xfs -K -l su=8b "${md_device}"
+    mkfs.xfs -f -K -l su=8b "${md_device}"
   fi
 
   ## Create the mount directory
   mkdir -p "${array_mount_point}"
 
-  local dev_uuid=$(blkid -s UUID -o value "${md_device}")
+  # -p probes the device; the udev cache can still hold a pre-mkfs signature.
+  local dev_uuid=$(blkid -p -s UUID -o value "${md_device}")
   local mount_unit_name="$(systemd-escape --path --suffix=mount "${array_mount_point}")"
   cat > "/etc/systemd/system/${mount_unit_name}" << EOF
   [Unit]
